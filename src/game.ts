@@ -1,9 +1,9 @@
 import { Inventory } from './classes/inventory';
-import { Fish, fishMap } from './classes/fish';
-import { Bait, baitMap } from './classes/bait';
-import { FishingRod, fishingRodMap } from './classes/fishingRod';
+import { Fish, fishMap as defaultFishMap } from './classes/fish';
+import { Bait, baitMap as defaultBaitMap } from './classes/bait';
+import { FishingRod, fishingRodMap as defaultFishingRodMap } from './classes/fishingRod';
+import { Environment, environmentMap as defaultEnvironmentMap } from './types/environment';
 import { FishNotFoundError, FishingRodNotFoundError, BaitNotFoundError, BaitInsufficientError } from './classes/errors';
-import { Environment, environmentMap } from './types/environment';
 
 /**
  * Represents the main game class for Koga Fishing.
@@ -12,16 +12,36 @@ export class KogaFishing {
     private playerName: string;
     private money: number;
     private inventory: Inventory;
+    private fishMap: { [key: number]: Fish };
+    private baitMap: { [key: number]: Bait };
+    private fishingRodMap: { [key: number]: FishingRod };
+    private environmentMap: { [key: number]: Environment };
 
     /**
      * @param {string} playerName - The name of the player.
      * @param {number} startingMoney - The starting amount of money for the player.
      * @param {Inventory} [initialInventory] - The initial inventory for the player.
+     * @param {Object} [customFishMap] - The custom fish map for the player.
+     * @param {Object} [customBaitMap] - The custom bait map for the player.
+     * @param {Object} [customFishingRodMap] - The custom fishing rod map for the player.
+     * @param {Object} [customEnvironmentMap] - The custom environment map for the player.
      */
-    constructor(playerName: string, startingMoney: number, initialInventory?: Inventory) {
+    constructor(
+        playerName: string,
+        startingMoney: number,
+        initialInventory?: Inventory,
+        customFishMap?: { [key: number]: Fish },
+        customBaitMap?: { [key: number]: Bait },
+        customFishingRodMap?: { [key: number]: FishingRod },
+        customEnvironmentMap?: { [key: number]: Environment }
+    ) {
         this.playerName = playerName;
         this.money = startingMoney;
         this.inventory = initialInventory || new Inventory();
+        this.fishMap = customFishMap || defaultFishMap;
+        this.baitMap = customBaitMap || defaultBaitMap;
+        this.fishingRodMap = customFishingRodMap || defaultFishingRodMap;
+        this.environmentMap = customEnvironmentMap || defaultEnvironmentMap;
     }
 
     /**
@@ -49,7 +69,7 @@ export class KogaFishing {
             return undefined;
         }
 
-        const hasBait = this.inventory.baits.some(b => b.id === bait.id);
+        const hasBait = this.inventory.baits.some(b => b.item.id === bait.id);
         if (!hasBait) {
             throw new BaitInsufficientError(`Insufficient bait`);
         }
@@ -85,7 +105,7 @@ export class KogaFishing {
      * @returns {Fish | undefined} The caught fish, or undefined if no fish was caught.
      */
     private determineCaughtFish(bait: Bait, rod: FishingRod, environment: Environment): Fish | undefined {
-        const possibleFish = Object.values(fishMap).filter(fish => fish.bait === bait.name && environment.fish.includes(fish.id));
+        const possibleFish = Object.values(this.fishMap).filter(fish => fish.bait === bait.name && environment.fish.includes(fish.id));
         if (possibleFish.length === 0) {
             return undefined;
         }
@@ -119,7 +139,7 @@ export class KogaFishing {
      * @throws {FishNotFoundError} If the fish is not found.
      */
     public getFish(id: number): Fish {
-        const fish = fishMap[id];
+        const fish = this.fishMap[id];
         if (!fish) {
             throw new FishNotFoundError(`Fish with ID ${id} not found.`);
         }
@@ -133,7 +153,7 @@ export class KogaFishing {
      * @throws {BaitNotFoundError} If the bait is not found.
      */
     public getBait(id: number): Bait {
-        const bait = baitMap[id];
+        const bait = this.baitMap[id];
         if (!bait) {
             throw new BaitNotFoundError(`Bait with ID ${id} not found.`);
         }
@@ -147,7 +167,7 @@ export class KogaFishing {
      * @throws {FishingRodNotFoundError} If the fishing rod is not found.
      */
     public getFishingRod(id: number): FishingRod {
-        const rod = fishingRodMap[id];
+        const rod = this.fishingRodMap[id];
         if (!rod) {
             throw new FishingRodNotFoundError(`Fishing rod with ID ${id} not found.`);
         }
@@ -161,7 +181,7 @@ export class KogaFishing {
      * @throws {Error} If the environment is not found.
      */
     public getEnvironment(id: number): Environment {
-        const environment = environmentMap[id];
+        const environment = this.environmentMap[id];
         if (!environment) {
             throw new Error(`Environment with ID ${id} not found.`);
         }
@@ -174,7 +194,11 @@ export class KogaFishing {
      * @param {number} [durability] - The durability of the item, if it's a fishing rod.
      */
     public addItem(item: Fish | FishingRod | Bait, durability?: number): void {
-        this.inventory.addItem(item, durability);
+        if (item instanceof FishingRod) {
+            this.inventory.addItem(item);
+        } else {
+            this.inventory.addItem(item);
+        }
     }
 
     /**
@@ -244,7 +268,7 @@ export class KogaFishing {
      */
     public sellFish(fishId: number, quantity: number): void {
         const fish = this.getFish(fishId);
-        const fishInInventory = this.inventory.fish.filter(f => f.id === fishId);
+        const fishInInventory = this.inventory.fishes.filter(f => f.item.id === fishId);
 
         if (fishInInventory.length < quantity) {
             throw new Error("Not enough fish in inventory to sell.");

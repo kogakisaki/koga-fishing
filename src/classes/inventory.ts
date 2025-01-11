@@ -6,9 +6,9 @@ import { Bait } from './bait';
  * Represents the player's inventory.
  */
 export class Inventory {
-    fish: Fish[] = [];
+    fishes: { item: Fish, durability: null }[] = [];
     fishingRods: { item: FishingRod, durability: number }[] = [];
-    baits: Bait[] = [];
+    baits: { item: Bait, durability: null }[] = [];
     level: number;
     maxCapacity: number;
 
@@ -30,36 +30,39 @@ export class Inventory {
     }
 
     /**
-     * Adds an item to the inventory.
-     * @param {Fish | FishingRod | Bait} item - The item to add.
-     * @param {number} [durability] - The durability of the item, if it's a fishing rod.
+     * Adds one or more items to the inventory.
+     * @param {(Fish | FishingRod | Bait)[]} items - The items to add.
      * @throws {Error} If the inventory is full.
      */
-    addItem(item: Fish | FishingRod | Bait, durability?: number): void {
-        if (this.getTotalItems() >= this.maxCapacity) {
-            throw new Error("Inventory is full.");
-        }
+    addItem(...items: (Fish | FishingRod | Bait)[]): void {
+        for (const item of items) {
+            if (this.getTotalItems() >= this.maxCapacity) {
+                throw new Error("Inventory is full.");
+            }
 
-        if (item instanceof Fish) {
-            this.fish.push(item);
-        } else if (item instanceof FishingRod) {
-            this.fishingRods.push({ item, durability: durability !== undefined ? durability : item.durability });
-        } else if (item instanceof Bait) {
-            this.baits.push(item);
+            if (item instanceof Fish) {
+                this.fishes.push({ item, durability: null });
+            } else if (item instanceof FishingRod) {
+                this.fishingRods.push({ item, durability: item.durability });
+            } else if (item instanceof Bait) {
+                this.baits.push({ item, durability: null });
+            }
         }
     }
 
     /**
-     * Removes an item from the inventory.
-     * @param {Fish | FishingRod | Bait} item - The item to remove.
+     * Removes one or more items from the inventory.
+     * @param {(Fish | FishingRod | Bait)[]} items - The items to remove.
      */
-    removeItem(item: Fish | FishingRod | Bait): void {
-        if (item instanceof Fish) {
-            this.fish = this.fish.filter(f => f.id !== item.id);
-        } else if (item instanceof FishingRod) {
-            this.fishingRods = this.fishingRods.filter(r => r.item.id !== item.id);
-        } else if (item instanceof Bait) {
-            this.baits = this.baits.filter(b => b.id !== item.id);
+    removeItem(...items: (Fish | FishingRod | Bait)[]): void {
+        for (const item of items) {
+            if (item instanceof Fish) {
+                this.fishes = this.fishes.filter(f => f.item.id !== item.id);
+            } else if (item instanceof FishingRod) {
+                this.fishingRods = this.fishingRods.filter(r => r.item.id !== item.id);
+            } else if (item instanceof Bait) {
+                this.baits = this.baits.filter(b => b.item.id !== item.id);
+            }
         }
     }
 
@@ -68,7 +71,7 @@ export class Inventory {
      * @returns {number} The total number of items.
      */
     getTotalItems(): number {
-        return this.fish.length + this.fishingRods.length + this.baits.length;
+        return this.fishes.length + this.fishingRods.length + this.baits.length;
     }
 
     /**

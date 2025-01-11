@@ -7,11 +7,27 @@ import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
 import { environmentMap } from './src/types/environment';
 
-const game = new KogaFishing("kogakisaki", 10246);
+const customFishMap = {
+    // Thêm dữ liệu cá tùy chỉnh ở đây
+};
 
-const initialFish = fishMap[1]; // Small Bass
-const initialRod = fishingRodMap[1]; // Bamboo Fishing Rod
-const initialBait = baitMap[1]; // Worm
+const customBaitMap = {
+    // Thêm dữ liệu mồi tùy chỉnh ở đây
+};
+
+const customFishingRodMap = {
+    // Thêm dữ liệu cần câu tùy chỉnh ở đây
+};
+
+const customEnvironmentMap = {
+    // Thêm dữ liệu môi trường tùy chỉnh ở đây
+};
+
+const game = new KogaFishing("kogakisaki", 10246, undefined, customFishMap, customBaitMap, customFishingRodMap, customEnvironmentMap);
+
+const initialFish = fishMap[1];
+const initialRod = fishingRodMap[1];
+const initialBait = baitMap[1];
 
 game.addItem(initialFish);
 game.addItem(initialRod);
@@ -56,7 +72,7 @@ async function catchFish() {
         return;
     }
     inventory.baits.forEach((bait, index) => {
-        console.log(`${index + 1}. ${bait.name} (Price: ${bait.price})`);
+        console.log(`${index + 1}. ${bait.item.name} (Price: ${bait.item.price})`);
     });
 
     const baitIndex = await rl.question("Enter bait number: ");
@@ -87,11 +103,11 @@ async function catchFish() {
     }
 
     try {
-        const caughtFish = game.catchFish(selectedBait.id, selectedRod.item.id, selectedEnvironment.id);
+        const caughtFish = game.catchFish(selectedBait.item.id, selectedRod.item.id, selectedEnvironment.id);
         if (caughtFish) {
-            console.log(`Bạn đã bắt được ${caughtFish.name}!`);
+            console.log(`You caught a ${caughtFish.name}!`);
         } else {
-            console.log("Bạn không bắt được cá nào.");
+            console.log("You didn't catch any fish.");
         }
     } catch (error: any) {
         if (error instanceof BaitInsufficientError) {
@@ -106,10 +122,10 @@ function viewInventory() {
     const inventory = game.getInventory();
     console.log("\n--- Inventory ---");
     console.log("Fish:");
-    if (inventory.fish.length > 0) {
-        inventory.fish.forEach(fish => {
-            if (fish instanceof Fish) {
-                console.log(`- ${fish.name} (Rarity: ${fish.rarity})`);
+    if (inventory.fishes.length > 0) {
+        inventory.fishes.forEach(fish => {
+            if (fish.item instanceof Fish) {
+                console.log(`- ${fish.item.name} (Rarity: ${fish.item.rarity})`);
             }
         });
     } else {
@@ -126,17 +142,22 @@ function viewInventory() {
         console.log("No fishing rods in inventory.");
     }
     console.log("Baits:");
-    inventory.baits.forEach(bait => {
-        if (bait instanceof Bait) {
-            console.log(`- ${bait.name} (Price: ${bait.price})`);
-        }
-    });
+    if (inventory.baits.length > 0) {
+        inventory.baits.forEach(bait => {
+            if (bait.item instanceof Bait) {
+                console.log(`- ${bait.item.name} (Price: ${bait.item.price})`);
+            }
+        });
+    } else {
+        console.log("No baits in inventory.");
+    }
 }
 
 async function buyFishingRod() {
     console.log("\n--- Choose a fishing rod to buy ---");
     for (const rodId in fishingRodMap) {
-        console.log(`${rodId}. ${fishingRodMap[rodId].name} (Price: ${fishingRodMap[rodId].price}, Max Rarity: ${fishingRodMap[rodId].maxRarity}, Durability: ${fishingRodMap[rodId].durability})`);
+        const rod = fishingRodMap[rodId];
+        console.log(`${rodId}. ${rod.name} (Price: ${rod.price}, Max Rarity: ${rod.maxRarity}, Durability: ${rod.maxDurability})`);
     }
     const rodId = await rl.question("Enter rod ID to buy: ");
     try {
@@ -150,7 +171,8 @@ async function buyFishingRod() {
 async function buyBait() {
     console.log("\n--- Choose bait to buy ---");
     for (const baitId in baitMap) {
-        console.log(`${baitId}. ${baitMap[baitId].name} (Price: ${baitMap[baitId].price})`);
+        const bait = baitMap[baitId];
+        console.log(`${baitId}. ${bait.name} (Price: ${bait.price})`);
     }
     const baitId = await rl.question("Enter bait ID to buy: ");
     try {
@@ -164,17 +186,17 @@ async function buyBait() {
 async function sellFish() {
     const inventory = game.getInventory();
     console.log("\n--- Choose a fish to sell ---");
-    if (inventory.fish.length === 0) {
+    if (inventory.fishes.length === 0) {
         console.log("You have no fish in your inventory.");
         return;
     }
 
-    inventory.fish.forEach((fish, index) => {
-        console.log(`${index + 1}. ${fish.name} (Price: ${fish.price})`);
+    inventory.fishes.forEach((fish, index) => {
+        console.log(`${index + 1}. ${fish.item.name} (Price: ${fish.item.price})`);
     });
 
     const fishIndex = await rl.question("Enter fish number to sell: ");
-    const selectedFish = inventory.fish[parseInt(fishIndex) - 1];
+    const selectedFish = inventory.fishes[parseInt(fishIndex) - 1];
 
     if (!selectedFish) {
         console.log("Invalid fish selection.");
@@ -183,8 +205,8 @@ async function sellFish() {
 
     const quantity = await rl.question("Enter quantity to sell: ");
     try {
-        game.sellFish(selectedFish.id, parseInt(quantity));
-        console.log(`Sold ${quantity} ${selectedFish.name}(s) successfully!`);
+        game.sellFish(selectedFish.item.id, parseInt(quantity));
+        console.log(`Sold ${quantity} ${selectedFish.item.name}(s) successfully!`);
     } catch (error: any) {
         console.error("Error selling fish:", error.message);
     }

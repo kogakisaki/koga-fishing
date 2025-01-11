@@ -1,3 +1,6 @@
+/**
+ * Enum representing different types of fish.
+ */
 export enum FishType {
     CATFISH = "Catfish",
     TILAPIA = "Tilapia",

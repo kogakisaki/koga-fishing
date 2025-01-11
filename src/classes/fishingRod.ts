@@ -1,3 +1,6 @@
+/**
+ * Represents a fishing rod in the game.
+ */
 export class FishingRod {
     id: number;
     name: string;
@@ -6,6 +9,13 @@ export class FishingRod {
     maxDurability: number;
     durability: number;
 
+    /**
+     * @param {number} id - The unique identifier of the fishing rod.
+     * @param {string} name - The name of the fishing rod.
+     * @param {number} maxRarity - The maximum rarity of fish that can be caught with this rod.
+     * @param {number} price - The price of the fishing rod.
+     * @param {number} maxDurability - The maximum durability of the fishing rod.
+     */
     constructor(id: number, name: string, maxRarity: number, price: number, maxDurability: number) {
         this.id = id;
         this.name = name;
@@ -15,11 +25,19 @@ export class FishingRod {
         this.durability = maxDurability;
     }
 
+    /**
+     * Updates the durability of the fishing rod.
+     * @param {number} newDurability - The new durability value.
+     */
     updateDurability(newDurability: number): void {
         this.durability = newDurability;
     }
 }
 
+/**
+ * A map of fishing rod items, with the key being the fishing rod ID.
+ * @type {Object.<number, FishingRod>}
+ */
 export const fishingRodMap: { [key: number]: FishingRod } = {
     1: new FishingRod(1, "Bamboo Fishing Rod", 1, 100, 100),
     2: new FishingRod(2, "Composite Fishing Rod", 2, 150, 150),

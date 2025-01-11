@@ -2,6 +2,9 @@ import { Fish } from './fish';
 import { FishingRod } from './fishingRod';
 import { Bait } from './bait';
 
+/**
+ * Represents the player's inventory.
+ */
 export class Inventory {
     fish: Fish[] = [];
     fishingRods: { item: FishingRod, durability: number }[] = [];
@@ -9,15 +12,29 @@ export class Inventory {
     level: number;
     maxCapacity: number;
 
+    /**
+     * @param {number} level - The initial level of the inventory.
+     */
     constructor(level: number = 1) {
         this.level = level;
         this.maxCapacity = this.calculateMaxCapacity(level);
     }
 
+    /**
+     * Calculates the maximum capacity of the inventory based on the level.
+     * @param {number} level - The current level of the inventory.
+     * @returns {number} The maximum capacity of the inventory.
+     */
     private calculateMaxCapacity(level: number): number {
-        return level * 10; // Ví dụ: mỗi cấp độ tăng 10 khoảng trống
+        return level * 10;
     }
 
+    /**
+     * Adds an item to the inventory.
+     * @param {Fish | FishingRod | Bait} item - The item to add.
+     * @param {number} [durability] - The durability of the item, if it's a fishing rod.
+     * @throws {Error} If the inventory is full.
+     */
     addItem(item: Fish | FishingRod | Bait, durability?: number): void {
         if (this.getTotalItems() >= this.maxCapacity) {
             throw new Error("Inventory is full.");
@@ -32,6 +49,10 @@ export class Inventory {
         }
     }
 
+    /**
+     * Removes an item from the inventory.
+     * @param {Fish | FishingRod | Bait} item - The item to remove.
+     */
     removeItem(item: Fish | FishingRod | Bait): void {
         if (item instanceof Fish) {
             this.fish = this.fish.filter(f => f.id !== item.id);
@@ -42,10 +63,18 @@ export class Inventory {
         }
     }
 
+    /**
+     * Gets the total number of items in the inventory.
+     * @returns {number} The total number of items.
+     */
     getTotalItems(): number {
         return this.fish.length + this.fishingRods.length + this.baits.length;
     }
 
+    /**
+     * Levels up the inventory, increasing its capacity.
+     * @throws {Error} If the maximum inventory level is reached.
+     */
     levelUp(): void {
         if (this.level < 5) {
             this.level++;

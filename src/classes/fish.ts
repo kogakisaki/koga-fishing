@@ -1,3 +1,6 @@
+/**
+ * Represents a fish in the game.
+ */
 export class Fish {
     id: number;
     name: string;
@@ -6,6 +9,14 @@ export class Fish {
     environment: number;
     price: number;
 
+    /**
+     * @param {number} id - The unique identifier of the fish.
+     * @param {string} name - The name of the fish.
+     * @param {number} rarity - The rarity of the fish.
+     * @param {string} bait - The bait required to catch the fish.
+     * @param {number} environment - The environment where the fish can be found.
+     * @param {number} price - The price of the fish.
+     */
     constructor(id: number, name: string, rarity: number, bait: string, environment: number, price: number) {
         this.id = id;
         this.name = name;
@@ -16,6 +27,10 @@ export class Fish {
     }
 }
 
+/**
+ * A map of fish items, with the key being the fish ID.
+ * @type {Object.<number, Fish>}
+ */
 export const fishMap: { [key: number]: Fish } = {
     1: new Fish(1, "Small Bass", 1, "Worm", 1, 20),
     2: new Fish(2, "Medium Bass", 2, "Shrimp", 1, 40),
@@ -69,7 +84,11 @@ export const fishMap: { [key: number]: Fish } = {
     50: new Fish(50, "Bluegill", 1, "Worm", 4, 11),
 };
 
-// Tạo một hàm để lấy tên cá từ ID
+/**
+ * Retrieves the name of a fish by its ID.
+ * @param {number} id - The ID of the fish.
+ * @returns {string | undefined} The name of the fish, or undefined if not found.
+ */
 export const getFishNameById = (id: number): string | undefined => {
     const fish = fishMap[id];
     return fish ? fish.name : undefined;

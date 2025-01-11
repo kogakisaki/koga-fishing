@@ -1,8 +1,16 @@
+/**
+ * Represents a bait item in the game.
+ */
 export class Bait {
     id: number;
     name: string;
     price: number;
 
+    /**
+     * @param {number} id - The unique identifier of the bait.
+     * @param {string} name - The name of the bait.
+     * @param {number} price - The price of the bait.
+     */
     constructor(id: number, name: string, price: number) {
         this.id = id;
         this.name = name;
@@ -10,6 +18,10 @@ export class Bait {
     }
 }
 
+/**
+ * A map of bait items, with the key being the bait ID.
+ * @type {Object.<number, Bait>}
+ */
 export const baitMap: { [key: number]: Bait } = {
     1: new Bait(1, "Worm", 10),
     2: new Bait(2, "Shrimp", 20),
@@ -28,6 +40,11 @@ export const baitMap: { [key: number]: Bait } = {
     15: new Bait(15, "Small Fish", 75),
 };
 
+/**
+ * Retrieves the name of a bait by its ID.
+ * @param {number} id - The ID of the bait.
+ * @returns {string | undefined} The name of the bait, or undefined if not found.
+ */
 export const getBaitNameById = (id: number): string | undefined => {
     const bait = baitMap[id];
     return bait ? bait.name : undefined;

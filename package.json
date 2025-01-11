@@ -1,0 +1,27 @@
+{
+  "name": "@kogakisaki/fishing",
+  "version": "1.0.1",
+  "description": "A fishing game package",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "scripts": {
+    "build": "tsc && tsc -p tsconfig.cjs.json",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "fishing",
+    "game"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "files": [
+    "dist/**/*"
+  ],
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "@types/node": "^22.10.5"
+  }
+}
